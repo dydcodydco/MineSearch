@@ -20,6 +20,7 @@ const onTdText = (data) => {
 	}
 };
 const onTdStyle = (data) => {
+	// console.log("getTedStyled");
 	let backgroundColor = "white";
 	switch (data) {
 		case CODE_VALUE.OPENED:
@@ -46,7 +47,8 @@ const onTdStyle = (data) => {
 };
 
 const Td = ({ rowIndex, cellIndex }) => {
-	const { tableData, dispatch } = useContext(TableContext);
+	// console.log("getTedStyled");
+	const { tableData, dispatch, halted } = useContext(TableContext);
 	const onClickTd = useCallback(() => {
 		if (
 			[
@@ -75,7 +77,7 @@ const Td = ({ rowIndex, cellIndex }) => {
 			row: rowIndex,
 			cell: cellIndex,
 		});
-	}, [tableData]);
+	}, [tableData[rowIndex][cellIndex], halted]);
 
 	const onRightClickTd = useCallback(
 		(e) => {
@@ -117,18 +119,29 @@ const Td = ({ rowIndex, cellIndex }) => {
 					break;
 			}
 		},
-		[tableData]
+		[tableData[rowIndex][cellIndex], halted]
 	);
 
 	return (
-		<td
-			onClick={onClickTd}
-			style={onTdStyle(tableData[rowIndex][cellIndex])}
-			onContextMenu={onRightClickTd}
-		>
-			{onTdText(tableData[rowIndex][cellIndex])}
-		</td>
+		<RealTd
+			onClickTd={onClickTd}
+			onRightClickTd={onRightClickTd}
+			data={tableData[rowIndex][cellIndex]}
+		/>
 	);
 };
 
 export default Td;
+
+const RealTd = React.memo(({ onClickTd, onRightClickTd, data }) => {
+	// console.log("real td renderd");
+	return (
+		<td
+			onClick={onClickTd}
+			style={onTdStyle(data)}
+			onContextMenu={onRightClickTd}
+		>
+			{onTdText(data)}
+		</td>
+	);
+});

@@ -15,4 +15,4 @@ const Table = () => {
 	);
 };
 
-export default Table;
+export default React.memo(Table);

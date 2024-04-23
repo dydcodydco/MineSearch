@@ -24,6 +24,7 @@ export const CODE_VALUE = {
 
 export const TableContext = createContext({
 	tableData: [],
+	halted: true,
 	dispatch: () => {},
 });
 const initialState = {
@@ -263,9 +264,10 @@ const MineSearch = () => {
 	const value = useMemo(() => {
 		return {
 			tableData,
+			halted,
 			dispatch,
 		};
-	}, [tableData]);
+	}, [tableData, halted]);
 
 	useEffect(() => {
 		if (halted) {
@@ -286,8 +288,8 @@ const MineSearch = () => {
 				{timer + "초"}
 				<div></div>
 				<Table />
+				<div>{result}</div>
 			</TableContext.Provider>
-			{result}
 		</>
 	);
 };

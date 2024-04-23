@@ -39,12 +39,27 @@ const Form = () => {
 	return (
 		<>
 			<form onSubmit={onSubmitForm}>
-				<input type='number' value={row} onChange={onChangeRow} />
-				<input type='number' value={cell} onChange={onChangeCell} />
-				<input type='number' value={mine} onChange={onChangeMine} />
-				<button>실행</button>
+				<input
+					type='number'
+					placeholder='세로'
+					value={row}
+					onChange={onChangeRow}
+				/>
+				<input
+					type='number'
+					placeholder='가로'
+					value={cell}
+					onChange={onChangeCell}
+				/>
+				<input
+					type='number'
+					placeholder='지뢰'
+					value={mine}
+					onChange={onChangeMine}
+				/>
+				<button>시작</button>
 			</form>
 		</>
 	);
 };
-export default Form;
+export default React.memo(Form);

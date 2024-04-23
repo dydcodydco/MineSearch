@@ -14,4 +14,4 @@ const Tr = ({ rowIndex }) => {
 	);
 };
 
-export default Tr;
+export default React.memo(Tr);
