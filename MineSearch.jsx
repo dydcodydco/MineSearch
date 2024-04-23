@@ -1,4 +1,4 @@
-import React, { createContext, useMemo, useReducer } from "react";
+import React, { createContext, useMemo, useReducer, useEffect } from "react";
 import Table from "./Table";
 import Form from "./Form";
 
@@ -9,6 +9,7 @@ export const CODE_ACTION = {
 	CHANGE_FLAG: "CHANGE_FLAG",
 	CHANGE_NORMAL: "CHANGE_NORMAL",
 	CLICK_MINE: "CLICK_MINE",
+	SET_TIMER: "SET_TIMER",
 };
 export const CODE_VALUE = {
 	NORMAL: -1,
@@ -27,9 +28,10 @@ export const TableContext = createContext({
 });
 const initialState = {
 	tableData: [],
-	halted: false,
+	halted: true,
 	result: "",
 	openedConut: 0,
+	timer: 0,
 	data: {
 		row: 0,
 		cell: 0,
@@ -73,6 +75,7 @@ const reducer = (state, action) => {
 				...state,
 				tableData,
 				halted: false,
+				timer: 0,
 				result: "",
 				openedConut: 0,
 				data: {
@@ -191,7 +194,7 @@ const reducer = (state, action) => {
 				openedConut: openedConut + state.openedConut,
 			};
 			if (isSuccess) {
-				obj.result = "성공!";
+				obj.result = `${state.timer} 초만에 성공했습니다.`;
 				obj.halted = true;
 			}
 			return obj;
@@ -240,7 +243,13 @@ const reducer = (state, action) => {
 				...state,
 				halted: true,
 				tableData,
-				result: "실패했습니다.",
+				result: `${state.timer} 초에 실패했습니다.`,
+			};
+		}
+		case CODE_ACTION.SET_TIMER: {
+			return {
+				...state,
+				timer: state.timer + 1,
 			};
 		}
 		default:
@@ -250,18 +259,31 @@ const reducer = (state, action) => {
 
 const MineSearch = () => {
 	const [state, dispatch] = useReducer(reducer, initialState);
-	const { tableData, halted, result } = state;
+	const { tableData, result, halted, timer } = state;
 	const value = useMemo(() => {
 		return {
 			tableData,
 			dispatch,
 		};
 	}, [tableData]);
+
+	useEffect(() => {
+		if (halted) {
+			return;
+		}
+		const interval = setInterval(() => {
+			dispatch({ type: CODE_ACTION.SET_TIMER });
+		}, 1000);
+		return () => {
+			clearInterval(interval);
+		};
+	}, [halted]);
 	return (
 		<>
 			<TableContext.Provider value={value}>
 				<h1>지뢰찾기</h1>
 				<Form />
+				{timer + "초"}
 				<div></div>
 				<Table />
 			</TableContext.Provider>
