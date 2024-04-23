@@ -3,7 +3,7 @@ import Table from "./Table";
 import Form from "./Form";
 
 export const CODE_ACTION = {
-	START_GAME: "START_GAEM",
+	START_GAME: "START_GAME",
 	CLICK_CELL: "CLICK_CELL",
 	CHANGE_QUESTION: "CHANGE_QUESTION",
 	CHANGE_FLAG: "CHANGE_FLAG",
@@ -27,6 +27,14 @@ export const TableContext = createContext({
 });
 const initialState = {
 	tableData: [],
+	halted: false,
+	result: "",
+	openedConut: 0,
+	data: {
+		row: 0,
+		cell: 0,
+		mine: 0,
+	},
 };
 
 const setMine = ({ row, cell, mine }) => {
@@ -50,6 +58,9 @@ const setMine = ({ row, cell, mine }) => {
 };
 
 const reducer = (state, action) => {
+	if (state.halted && action.type !== CODE_ACTION.START_GAME) {
+		return state;
+	}
 	switch (action.type) {
 		case CODE_ACTION.START_GAME: {
 			const { row, cell, mine } = action;
@@ -58,14 +69,27 @@ const reducer = (state, action) => {
 				cell: parseInt(cell),
 				mine: parseInt(mine),
 			});
-			return { ...state, tableData };
+			return {
+				...state,
+				tableData,
+				halted: false,
+				result: "",
+				openedConut: 0,
+				data: {
+					row,
+					cell,
+					mine,
+				},
+			};
 		}
 		case CODE_ACTION.CLICK_CELL: {
-			const { row, cell, mine } = action;
+			const { row, cell } = action;
 			const tableData = [...state.tableData];
 			tableData.forEach((d, i) => {
 				d = [...tableData[i]];
 			});
+			let openedConut = 0;
+			let isSuccess = false;
 
 			const clickCell = ({ row, cell }) => {
 				// 이미 열렸거나 -1보다 크면 return
@@ -132,10 +156,22 @@ const reducer = (state, action) => {
 					]).has(d.code)
 				).length;
 				tableData[row][cell] = count;
+				openedConut++;
+				// console.log("countArr", countArr);
+				// console.log("count", count);
+				// console.log(
+				// 	state.data.row * state.data.cell - state.data.mine,
+				// 	openedConut,
+				// 	state.openedConut
+				// );
 
-				console.log("countArr", countArr);
-				console.log("count", count);
-
+				if (
+					state.data.row * state.data.cell - state.data.mine ===
+					openedConut + state.openedConut
+				) {
+					// console.log("정답");
+					isSuccess = true;
+				}
 				// 근처에 지뢰가 없으면 주위에 있는 cell들에게
 				// 재취 함수 호출
 				if (count === 0) {
@@ -149,10 +185,16 @@ const reducer = (state, action) => {
 				}
 			};
 			clickCell({ row, cell });
-			return {
+			const obj = {
 				...state,
 				tableData,
+				openedConut: openedConut + state.openedConut,
 			};
+			if (isSuccess) {
+				obj.result = "성공!";
+				obj.halted = true;
+			}
+			return obj;
 		}
 		case CODE_ACTION.CHANGE_QUESTION: {
 			const tableData = [...state.tableData];
@@ -190,6 +232,17 @@ const reducer = (state, action) => {
 				tableData,
 			};
 		}
+		case CODE_ACTION.CLICK_MINE: {
+			const tableData = [...state.tableData];
+			tableData[action.row] = [...tableData[action.row]];
+			tableData[action.row][action.cell] = CODE_VALUE.CLICKED_MINE;
+			return {
+				...state,
+				halted: true,
+				tableData,
+				result: "실패했습니다.",
+			};
+		}
 		default:
 			return state;
 	}
@@ -197,7 +250,7 @@ const reducer = (state, action) => {
 
 const MineSearch = () => {
 	const [state, dispatch] = useReducer(reducer, initialState);
-	const { tableData } = state;
+	const { tableData, halted, result } = state;
 	const value = useMemo(() => {
 		return {
 			tableData,
@@ -212,6 +265,7 @@ const MineSearch = () => {
 				<div></div>
 				<Table />
 			</TableContext.Provider>
+			{result}
 		</>
 	);
 };

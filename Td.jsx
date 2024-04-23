@@ -62,6 +62,14 @@ const Td = ({ rowIndex, cellIndex }) => {
 		if (tableData[rowIndex][cellIndex] > -1) {
 			return;
 		}
+		if (tableData[rowIndex][cellIndex] === CODE_VALUE.MINE) {
+			dispatch({
+				type: CODE_ACTION.CLICK_MINE,
+				row: rowIndex,
+				cell: cellIndex,
+			});
+			return;
+		}
 		dispatch({
 			type: CODE_ACTION.CLICK_CELL,
 			row: rowIndex,
@@ -81,7 +89,7 @@ const Td = ({ rowIndex, cellIndex }) => {
 			if (tableData[rowIndex][cellIndex] > -1) {
 				return;
 			}
-			console.log("onRightClickTd");
+			// console.log("onRightClickTd");
 			switch (tableData[rowIndex][cellIndex]) {
 				case CODE_VALUE.NORMAL:
 				case CODE_VALUE.MINE:

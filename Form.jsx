@@ -32,7 +32,7 @@ const Form = () => {
 		(e) => {
 			e.preventDefault();
 			dispatch({ type: CODE_ACTION.START_GAME, row, cell, mine });
-			console.log(row, cell, mine);
+			// console.log(row, cell, mine);
 		},
 		[row, cell, mine]
 	);
