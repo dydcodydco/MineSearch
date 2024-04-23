@@ -67,12 +67,91 @@ const reducer = (state, action) => {
 				d = [...tableData[i]];
 			});
 
-			tableData[action.row][action.cell] =
-				tableData[action.row][action.cell] === CODE_VALUE.MINE
-					? CODE_VALUE.CLICKED_MINE
-					: CODE_VALUE.OPENED;
+			const clickCell = ({ row, cell }) => {
+				// 이미 열렸거나 -1보다 크면 return
+				if (
+					tableData[row][cell] === CODE_VALUE.OPENED ||
+					tableData[row][cell] > -1
+				) {
+					return;
+				}
+
+				// 근처에 지뢰 몇개 있는지 찾기
+				const countArr = [];
+				if (tableData[row - 1]) {
+					countArr.push({
+						code: tableData[row - 1][cell - 1],
+						row: row - 1,
+						cell: cell - 1,
+					});
+					countArr.push({
+						code: tableData[row - 1][cell],
+						row: row - 1,
+						cell,
+					});
+					countArr.push({
+						code: tableData[row - 1][cell + 1],
+						row: row - 1,
+						cell: cell + 1,
+					});
+				}
+				countArr.push({
+					code: tableData[row][cell - 1],
+					row,
+					cell: cell - 1,
+				});
+				countArr.push({
+					code: tableData[row][cell + 1],
+					row,
+					cell: cell + 1,
+				});
+				if (tableData[row + 1]) {
+					countArr.push({
+						code: tableData[row + 1][cell - 1],
+						row: row + 1,
+						cell: cell - 1,
+					});
+					countArr.push({
+						code: tableData[row + 1][cell],
+						row: row + 1,
+						cell,
+					});
+					countArr.push({
+						code: tableData[row + 1][cell + 1],
+						row: row + 1,
+						cell: cell + 1,
+					});
+				}
+
+				// 근처에 몇개의 지뢰가 있는지 표시
+				const count = countArr.filter((d) =>
+					new Set([
+						CODE_VALUE.MINE,
+						CODE_VALUE.QUESTION_MINE,
+						CODE_VALUE.FLAG_MINE,
+					]).has(d.code)
+				).length;
+				tableData[row][cell] = count;
+
+				console.log("countArr", countArr);
+				console.log("count", count);
+
+				// 근처에 지뢰가 없으면 주위에 있는 cell들에게
+				// 재취 함수 호출
+				if (count === 0) {
+					countArr
+						.filter((d) => d.code !== undefined)
+						.forEach((d) => {
+							clickCell({ row: d.row, cell: d.cell });
+						});
+				} else {
+					return;
+				}
+			};
+			clickCell({ row, cell });
 			return {
 				...state,
+				tableData,
 			};
 		}
 		case CODE_ACTION.CHANGE_QUESTION: {

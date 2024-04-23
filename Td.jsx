@@ -16,7 +16,7 @@ const onTdText = (data) => {
 		case CODE_VALUE.MINE:
 			return "X";
 		default:
-			return "";
+			return data || "";
 	}
 };
 const onTdStyle = (data) => {
@@ -49,11 +49,19 @@ const Td = ({ rowIndex, cellIndex }) => {
 	const { tableData, dispatch } = useContext(TableContext);
 	const onClickTd = useCallback(() => {
 		if (
-			[CODE_VALUE.OPENED, CODE_VALUE.CLICKED_MINE].includes(
-				tableData[rowIndex][cellIndex]
-			)
+			[
+				CODE_VALUE.OPENED,
+				CODE_VALUE.CLICKED_MINE,
+				CODE_VALUE.QUESTION,
+				CODE_VALUE.QUESTION_MINE,
+				CODE_VALUE.FLAG,
+				CODE_VALUE.FLAG_MINE,
+			].includes(tableData[rowIndex][cellIndex])
 		)
 			return;
+		if (tableData[rowIndex][cellIndex] > -1) {
+			return;
+		}
 		dispatch({
 			type: CODE_ACTION.CLICK_CELL,
 			row: rowIndex,
@@ -70,6 +78,9 @@ const Td = ({ rowIndex, cellIndex }) => {
 				)
 			)
 				return;
+			if (tableData[rowIndex][cellIndex] > -1) {
+				return;
+			}
 			console.log("onRightClickTd");
 			switch (tableData[rowIndex][cellIndex]) {
 				case CODE_VALUE.NORMAL:
