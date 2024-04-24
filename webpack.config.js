@@ -1,5 +1,6 @@
 const path = require("path");
 const refreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin");
+const htmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = {
 	name: "mine-search-webpack-setting",
@@ -34,7 +35,10 @@ module.exports = {
 			},
 		],
 	},
-	plugins: [new refreshWebpackPlugin()],
+	plugins: [
+		new refreshWebpackPlugin(),
+		new htmlWebpackPlugin({ template: "./index.html", filename: "index.html" }),
+	],
 	output: {
 		filename: "app.js",
 		path: path.join(__dirname, "dist"),
