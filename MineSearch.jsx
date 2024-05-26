@@ -49,7 +49,9 @@ const setMine = ({ row, cell, mine }) => {
 		);
 	}
 
-	const defaultTable = [...Array(cell)].map((d) => Array(row).fill(-1));
+	const defaultTable = [...Array(cell)].map((d) =>
+		Array(row).fill(CODE_VALUE.NORMAL)
+	);
 	mineArr.forEach((d, i) => {
 		defaultTable[Math.floor(d / cell)][d % row] = CODE_VALUE.MINE;
 	});
@@ -92,8 +94,10 @@ const reducer = (state, action) => {
 			tableData.forEach((d, i) => {
 				d = [...tableData[i]];
 			});
+
 			let openedConut = 0;
 			let isSuccess = false;
+			const checked = [];
 
 			const clickCell = ({ row, cell }) => {
 				// 이미 열렸거나 -1보다 크면 return
@@ -103,6 +107,21 @@ const reducer = (state, action) => {
 				) {
 					return;
 				}
+
+				if (
+					row < 0 ||
+					row >= tableData.length ||
+					cell < 0 ||
+					cell >= tableData[0].length
+				) {
+					return;
+				} // 상하좌우 없는칸은 안 열기
+
+				if (checked.includes(row + "/" + cell)) {
+					return;
+				} else {
+					checked.push(row + "/" + cell);
+				} // 한 번 연칸은 무시하기
 
 				// 근처에 지뢰 몇개 있는지 찾기
 				const countArr = [];
